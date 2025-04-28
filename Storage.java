@@ -11,7 +11,6 @@ public class Storage implements Serializable {
     public int bikeCounter = 1;
     public int bookingCounter = 1;
 
-
     private static Storage INSTANCE;
 
     private static final String FILE = "data.bin";

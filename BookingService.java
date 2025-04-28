@@ -13,6 +13,22 @@ public final class BookingService {
     private BookingService() {
     }
 
+    public void cleanupExpired() {
+        LocalDate today = LocalDate.now();
+        boolean changed = false;
+        for (Booking b : bookings) {
+            if (b.getStatus() == Booking.Status.APPROVED
+                    && b.getEnd().isBefore(today)
+                    && !b.getBike().isAvailable()) {
+                b.getBike().setAvailable(true);
+                changed = true;
+            }
+        }
+        if (changed) {
+            save();
+        }
+    }
+
     public List<Booking> all() {
         return new ArrayList<Booking>(bookings);
     }
@@ -51,11 +67,7 @@ public final class BookingService {
 
     public void cancel(int id) {
         Booking b = find(id);
-        if (b != null) {
-            // if it was approved, put the bike back
-            if (b.getStatus() == Booking.Status.APPROVED) {
-                b.getBike().setAvailable(true);
-            }
+        if (b != null && b.getStatus() == Booking.Status.PENDING) {
             b.setStatus(Booking.Status.CANCELLED);
             Storage.save();
         }
